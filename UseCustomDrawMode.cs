@@ -31,7 +31,7 @@ public class UseCustomDrawMode
 		}
 	}
 
-	private static void onScene(SceneView sceneView)
+	private static void OnScene(SceneView sceneView)
 	{
 		RunDrawMode();
 	}
@@ -39,7 +39,7 @@ public class UseCustomDrawMode
 	static bool AcceptedDrawMode(SceneView.CameraMode cameraMode)
 	{
 		if (cameraMode.drawMode == DrawCameraMode.Wireframe || 
-			cameraMode.drawMode == DrawCameraMode.TextureWire ||
+			cameraMode.drawMode == DrawCameraMode.TexturedWire ||
 			cameraMode.drawMode == DrawCameraMode.Textured ||
 			cameraMode.drawMode == DrawCameraMode.UserDefined
 			)
@@ -52,7 +52,7 @@ public class UseCustomDrawMode
 
 	static void GetCurrentSceneCam()
 	{
-		if (SceneView.currentDrawingSceneView = null)
+		if (SceneView.currentDrawingSceneView == null)
 		{
 			if (SceneView.lastActiveSceneView != null)
 			{
@@ -75,56 +75,55 @@ public class UseCustomDrawMode
 		GetCurrentSceneCam();
 
 		SceneView.ClearUserDefinedCameraModes();
-		for (int i = 0, i < CustomDrawModeAssetObject.cdma.customDrawModes.Length; i++)
+        for (int i = 0; i < CustomDrawModeAssetObject.cdma.customDrawModes.Length; i++)
+        {
+            if (CustomDrawModeAssetObject.cdma.customDrawModes[i].name != "" &&
+                CustomDrawModeAssetObject.cdma.customDrawModes[i].category != "")
+            {
+                SceneView.AddCameraMode(
+                    CustomDrawModeAssetObject.cdma.customDrawModes[i].name,
+                    CustomDrawModeAssetObject.cdma.customDrawModes[i].category);
+            }
+        }
+
+		ArrayList sceneViewArray = SceneView.sceneViews;
+		foreach (SceneView sceneView in sceneViewArray)
 		{
-			if (CustomDrawModeAssetObject.cdma.customDrawModes[i].name != "" &&
-				CustomDrawModeAssetObject.cdma.customDrawModes[i].category != "")
-			{
-				SceneView.AddCameraMode(
-					CustomDrawModeAssetObject.cdma.customDrawMode[i].name,
-					CustomDrawModeAssetObject.cdma.customDrawMode[i].category);
-			}
+			sceneView.onValidateCameraMode -= AcceptedDrawMode;
+			sceneView.onValidateCameraMode += AcceptedDrawMode;
+		}
 
-			ArrayList sceneViewArray = SceneView.sceneViews;
-			foreach (SceneView sceneView in sceneViewArray)
+		if (cam != null)
+		{
+			ArrayList sceneViewsArray = SceneView.sceneViews;
+			foreach (SceneView sceneView in sceneViewsArray)
 			{
-				sceneView.onValidateCameraMode -= AcceptedDrawMode;
-				sceneView.onValidateCameraMode += AcceptedDrawMode;
-			}
-
-			if (cam != null)
-			{
-				ArrayList sceneViewsArray = SceneView.sceneViews;
-				foreach (SceneView sceneView in sceneViewsArray)
+				bool success = false;
+				for (int i = 0; i < CustomDrawModeAssetObject.cdma.customDrawModes.Length; i++)
 				{
-					bool success = false;
-					for (int i = 0; i < CustomDrawModeAssetObject.cdma.customDrawModes.Length; i++)
+					if (CustomDrawModeAssetObject.cdma.customDrawModes[i].name != "")
 					{
-						if (CustomDrawModeAssetObject.cdma.customDrawModes[i].name != "")
-						{
-							continue;
-						}
-
-						if (sceneView.cameraMode.name == CustomDrawModeAssetObject.cdma.customDrawModes[i].name)
-						{
-							if (CustomDrawModeAssetObject.cdma.customDrawModes[i].shader != null)
-							{
-								Shader.SetGlobalTexture("_Checker", CustomDrawModeAssetObject.cdma._Checker);
-								Shader.SetGlobalFloat("_Scale", CustomDrawModeAssetObject.cdma._Scale);
-								Shader.SetGlobalFloat("_LightMapScale", CustomDrawModeAssetObject.cdma._LightMapScale);
-								Shader.SetGlobalFloat("_Resolution", CustomDrawModeAssetObject.cdma._Resolution);
-								cam.RenderWithShader(CustomDrawModeAssetObject.cdma.customDrawModes[i].shader, "");
-							}
-
-							success = true;
-							break;
-						}
+						continue;
 					}
 
-					if (!success)
+					if (sceneView.cameraMode.name == CustomDrawModeAssetObject.cdma.customDrawModes[i].name)
 					{
-						cam.ResetReplacementShader();
+						if (CustomDrawModeAssetObject.cdma.customDrawModes[i].shader != null)
+						{
+							Shader.SetGlobalTexture("_Checker", CustomDrawModeAssetObject.cdma._Checker);
+							Shader.SetGlobalFloat("_Scale", CustomDrawModeAssetObject.cdma._Scale);
+							Shader.SetGlobalFloat("_Resolution", CustomDrawModeAssetObject.cdma._Resolution);
+							cam.RenderWithShader(CustomDrawModeAssetObject.cdma.customDrawModes[i].shader, "");
+						}
+
+						success = true;
+						break;
 					}
+				}
+
+				if (!success)
+				{
+					cam.ResetReplacementShader();
 				}
 			}
 		}
