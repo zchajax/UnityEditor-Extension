@@ -8,10 +8,10 @@ Shader "DrawMode/TexelChecker"
 		{
 			ZWrite On
 			CGPROGRAM
-			#pragma vertex vect
+            #pragma vertex vert
 			#pragma fragment frag
 			#pragma target 5.0
-			#pragma "UnityCG.cginc"
+            #include "UnityCG.cginc"
 
 			sampler2D _Checker;
 			float4 _MainTex_TexelSize;

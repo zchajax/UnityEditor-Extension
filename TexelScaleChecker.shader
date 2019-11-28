@@ -20,9 +20,6 @@ Shader "FTPCustom/VertexInput/TexelScaleChecker"
 			float _Scale;
 			float _Resolution;
 
-			float _Scale;
-			float _Resolution;
-
 			struct appdata
 			{
 				float4 vertex : POSITION;
@@ -53,9 +50,9 @@ Shader "FTPCustom/VertexInput/TexelScaleChecker"
 				return sqrt(a * a + b * b);
 			}
 
-			hafl4 frag(v2f i) : SV_Target
+			half4 frag(v2f i) : SV_Target
 			{
-				float size = float2(_MainTex_TexelSize.z + _MainTex_TexelSize.w);
+				float2 size = float2(_MainTex_TexelSize.z, _MainTex_TexelSize.w);
 
 				float a = len(ddx(i.uv.x) * (size.x / _Resolution), ddx(i.uv.y) * (size.y / _Resolution)) / length(ddx(i.posWS.xyz));
 				a += len(ddy(i.uv.x) * (size.x / _Resolution), ddy(i.uv.y) * (size.y / _Resolution)) / length(ddy(i.posWS.xyz));
