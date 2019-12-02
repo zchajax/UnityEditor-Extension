@@ -1,5 +1,5 @@
 using System.Collections;
-using System.Collection.Generic;
+using System.Collections.Generic;
 using UnityEngine.Rendering;
 using UnityEngine;
 
@@ -34,22 +34,23 @@ public class CaptureScene : MonoBehaviour
 		
 		byte[] bytes = screenShot.EncodeToPNG();
 		System.IO.File.WriteAllBytes(Path, bytes);
-		
-		SafeDestory(rt);
-		SafeDestory(screemShot);
-		
-		_captureCam.enabled = false;
+
+        _captureCam.enabled = false;
+        RenderTexture.active = null;
+
+        SafeDestory(rt);
+		SafeDestory(screenShot);
 	}
 	
 	void SafeDestory(Object obj)
 	{
 		if (Application.isEditor)
 		{
-			DestoryImmediate(obj);
+			DestroyImmediate(obj);
 		}
 		else
 		{
-			Destory(obj);
+			Destroy(obj);
 		}
 	}
 }
